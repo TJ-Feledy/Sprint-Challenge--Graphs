@@ -11,10 +11,10 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-# map_file = "maps/test_cross.txt"
+map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-map_file = "maps/main_maze.txt"
+# map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -30,6 +30,45 @@ player = Player(world.starting_room)
 traversal_path = []
 
 
+def dft_recursive(starting_vertex, path={}):
+    # add starting vertex to visited
+    path[starting_vertex.id] = {}
+    print('vertex', starting_vertex.id)
+    # get the neighbors of the starting vertex
+    # build a graph for exits
+    directions = starting_vertex.get_exits()
+
+
+    # if no neighbors, return
+    # else for each neighbor
+        # if it is not in visited, run recursion with neighbor as starting vertex
+        # else return
+    if len(directions) == 1:
+        # ********if nowhere to go, find shortest path back to next unexplored room********
+        print(traversal_path)
+    else:
+        for direction in directions:
+            if direction not in dict(path[starting_vertex.id]):
+                if direction == 'n':
+                    path[starting_vertex.id].update({'n': starting_vertex.n_to.id})
+                    dft_recursive(starting_vertex.n_to)
+                if direction == 's':
+                    path[starting_vertex.id].update({'s': starting_vertex.s_to.id})
+                    dft_recursive(starting_vertex.s_to)
+                if direction == 'e':
+                    path[starting_vertex.id].update({'e': starting_vertex.e_to.id})
+                    dft_recursive(starting_vertex.e_to)
+                if direction == 'w':
+                    path[starting_vertex.id].update({'w': starting_vertex.w_to.id})
+                    dft_recursive(starting_vertex.w_to)
+                traversal_path.append(direction)
+            # if direction not in path:
+            #     dft_recursive(direction, path)
+            else:
+                print('hey, hey, hey')
+    print('endPath', path)
+dft_recursive(player.current_room)
+print('traverse', traversal_path)
 
 # TRAVERSAL TEST - DO NOT MODIFY
 visited_rooms = set()
