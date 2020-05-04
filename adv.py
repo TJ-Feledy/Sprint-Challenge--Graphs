@@ -24,10 +24,10 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -60,6 +60,7 @@ def bfs(current_room, traversed, world):
             # If the current room is not in traversed rooms, add it to the current path
             if curr_room.get_room_in_direction(direction) not in traversed:
                 path.append((direction, curr_room.get_room_in_direction(direction).id))
+                return path
             # If the current rooms id is not in visited, add it and enqueue new path
             if curr_room.get_room_in_direction(direction).id not in visited:
                 new_room = curr_room.get_room_in_direction(direction)
@@ -75,8 +76,30 @@ visited.add(player.current_room)
 # Run loop until all rooms are visited
 while len(visited) != len(room_graph):
     room_exits = player.current_room.get_exits()
+    unexplored_exit = False
+    # for each room_exits
+    for direction in room_exits:
+        # if the current direction is not in visited, add it to visited and traversal_path, and move the player
+        if player.current_room.get_room_in_direction(direction) not in visited:
+            player.travel(direction)
+            visited.add(player.current_room)
+            traversal_path.append(direction)
+            unexplored_exit = True
+            break
     
+    if unexplored_exit:
+            continue
+    
+    # no more rooms left to explore on this path, perform bfs
+    backtrack = bfs(player.current_room, visited, world)
 
+    # for each direction in backtrack, move the player and add it to traversal_path
+    for i in range(len(backtrack)-1):
+        direction = backtrack[i][0]
+        player.travel(direction)
+        traversal_path.append(direction)
+
+    visited.add(player.current_room)
 
 
 # TRAVERSAL TEST - DO NOT MODIFY
