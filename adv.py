@@ -43,6 +43,7 @@ player = Player(world.starting_room)
 traversal_path = []
 visited = set()
 
+
 # create a bfs for finding shortest path to unexplored rooms
 def bfs(current_room, traversed, world):
     queue = Queue()
@@ -76,7 +77,7 @@ visited.add(player.current_room)
 # Run loop until all rooms are visited
 while len(visited) != len(room_graph):
     room_exits = player.current_room.get_exits()
-    unexplored_exit = False
+
     # for each room_exits
     for direction in room_exits:
         # if the current direction is not in visited, add it to visited and traversal_path, and move the player
@@ -84,11 +85,8 @@ while len(visited) != len(room_graph):
             player.travel(direction)
             visited.add(player.current_room)
             traversal_path.append(direction)
-            unexplored_exit = True
             break
     
-    if unexplored_exit:
-            continue
     
     # no more rooms left to explore on this path, perform bfs
     backtrack = bfs(player.current_room, visited, world)
@@ -96,7 +94,6 @@ while len(visited) != len(room_graph):
     # for each direction in backtrack, move the player and add it to traversal_path
     for i in range(1, len(backtrack)):
         direction = backtrack[i][0]
-        print('backtracking')
         player.travel(direction)
         traversal_path.append(direction)
 
