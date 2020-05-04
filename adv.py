@@ -5,6 +5,19 @@ from world import World
 import random
 from ast import literal_eval
 
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
+
 # Load world
 world = World()
 
@@ -28,47 +41,43 @@ player = Player(world.starting_room)
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
 traversal_path = []
+visited = set()
+
+# create a bfs for finding shortest path to unexplored rooms
+def bfs(current_room, traversed, world):
+    queue = Queue()
+    queue.enqueue([('n', current_room.id)])
+    visited = set()
+
+    visited.add(current_room.id)
+
+    while queue.size() > 0:
+        path = queue.dequeue()
+        curr_room = path[-1]
+        curr_room = world.rooms[curr_room[1]]
+
+        for direction in curr_room.get_exits():
+            # If the current room is not in traversed rooms, add it to the current path
+            if curr_room.get_room_in_direction(direction) not in traversed:
+                path.append((direction, curr_room.get_room_in_direction(direction).id))
+            # If the current rooms id is not in visited, add it and enqueue new path
+            if curr_room.get_room_in_direction(direction).id not in visited:
+                new_room = curr_room.get_room_in_direction(direction)
+                new_path = list(path)
+                new_path.append((direction, new_room.id))
+                visited.add(new_room.id)
+                queue.enqueue(new_path)
+
+# add the first room to visited
+visited.add(player.current_room)
+
+# find an unexplored exit in current room and travel to it
+# Run loop until all rooms are visited
+while len(visited) != len(room_graph):
+    room_exits = player.current_room.get_exits()
+    
 
 
-def dft_recursive(starting_vertex, path={}):
-    # add starting vertex to visited
-    path[starting_vertex.id] = {}
-    print('vertex', starting_vertex.id)
-    # get the neighbors of the starting vertex
-    # build a graph for exits
-    directions = starting_vertex.get_exits()
-
-
-    # if no neighbors, return
-    # else for each neighbor
-        # if it is not in visited, run recursion with neighbor as starting vertex
-        # else return
-    if len(directions) == 1:
-        # ********if nowhere to go, find shortest path back to next unexplored room********
-        print(traversal_path)
-    else:
-        for direction in directions:
-            if direction not in dict(path[starting_vertex.id]):
-                if direction == 'n':
-                    path[starting_vertex.id].update({'n': starting_vertex.n_to.id})
-                    dft_recursive(starting_vertex.n_to)
-                if direction == 's':
-                    path[starting_vertex.id].update({'s': starting_vertex.s_to.id})
-                    dft_recursive(starting_vertex.s_to)
-                if direction == 'e':
-                    path[starting_vertex.id].update({'e': starting_vertex.e_to.id})
-                    dft_recursive(starting_vertex.e_to)
-                if direction == 'w':
-                    path[starting_vertex.id].update({'w': starting_vertex.w_to.id})
-                    dft_recursive(starting_vertex.w_to)
-                traversal_path.append(direction)
-            # if direction not in path:
-            #     dft_recursive(direction, path)
-            else:
-                print('hey, hey, hey')
-    print('endPath', path)
-dft_recursive(player.current_room)
-print('traverse', traversal_path)
 
 # TRAVERSAL TEST - DO NOT MODIFY
 visited_rooms = set()
